@@ -1,0 +1,77 @@
+import { useParams, useNavigate } from 'react-router-dom';
+import { useGetBookDetailsQuery } from '../../state/apis/openLibraryApi';
+import Notes from '../notes/Notes';
+import './BookDetails.css';
+
+function BookDetails() {
+  const { workKey } = useParams<{ workKey: string }>();
+  const navigate = useNavigate();
+  const bookKey = `/works/${workKey}`;
+  
+  const { data: book, error, isLoading } = useGetBookDetailsQuery(bookKey);
+
+  if (isLoading) return <div className="loading">Loading book details...</div>;
+  if (error) return <div className="error">Error loading book details: {'message' in error ? error.message : 'An error occurred'}</div>;
+  if (!book) return <div className="error">Book not found</div>;
+
+  return (
+    <div className="book-details-container">
+      <button onClick={() => navigate(-1)} className="back-button">
+        ← Back to List
+      </button>
+      
+      <div className="book-details-content">
+        <div className="book-details-header">
+          <div className="book-cover-large">
+            {book.coverId ? (
+              <img
+                src={`https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg`}
+                alt={book.title}
+                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                  e.currentTarget.src = 'https://via.placeholder.com/300x450?text=No+Cover';
+                }}
+              />
+            ) : (
+              <div className="no-cover-large">No Cover Available</div>
+            )}
+          </div>
+
+          <div className="book-details-info">
+            <h1>{book.title}</h1>
+            <p className="author">By J.K. Rowling</p>
+            
+            {book.created && (
+              <p className="published-date">
+                <strong>Created:</strong> {new Date(book.created).toLocaleDateString()}
+              </p>
+            )}
+
+            <div className="description">
+              <h2>Description</h2>
+              <p>{book.description}</p>
+            </div>
+
+            {book.subjects && book.subjects.length > 0 && (
+              <div className="subjects">
+                <h3>Subjects</h3>
+                <div className="subject-tags">
+                  {book.subjects.slice(0, 10).map((subject, index) => (
+                    <span key={index} className="subject-tag">
+                      {subject}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="notes-section">
+          <Notes bookKey={bookKey} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default BookDetails;
