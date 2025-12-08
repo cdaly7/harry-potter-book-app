@@ -51,7 +51,7 @@ function BookList() {
     <div className="app-layout">
       <FilterSidebar />
 
-      <main className="main-content">
+      <main className="main-content" aria-label="Book list">
         <img src={harryBanner} alt="Harry Potter Books by J.K. Rowling" className="banner-image" />
         { 
           error ? 
@@ -60,17 +60,17 @@ function BookList() {
           <LoadingSpinner message="Loading Harry Potter books..." /> :
           <div>
           {searchTerm && (
-            <div className="results-info">
+            <div className="results-info" role="status" aria-live="polite">
               <p>
                 Found {resultCount} book{resultCount !== 1 ? 's' : ''} matching "{searchTerm}"
               </p>
             </div>
           )}
 
-          <div className="book-grid">
+          <div className="book-grid" aria-label="Harry Potter books">
             {booksToDisplay?.length === 0 ? (
-              <div className="no-results">
-                <p>No books found{searchTerm && ` matching "${searchTerm}"`}</p>
+              <div className="no-results" role="status">
+                <p>No books found{searchTerm && ` matching \"${searchTerm}\"`}</p>
               </div>
             ) : (
               booksToDisplay?.map((book, index) => (
@@ -78,6 +78,7 @@ function BookList() {
                   to={`/book${book.key}`}
                   key={book.key}
                   className="book-card"
+                  aria-label={`View details for ${book.title}${book.firstPublishYear ? `, published in ${book.firstPublishYear}` : ''}`}
                 >
                   <div className="book-cover">
                     <BookCover

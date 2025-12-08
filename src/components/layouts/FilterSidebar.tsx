@@ -93,14 +93,15 @@ export function FilterSidebar() {
     <aside className="filter-sidebar">
       <div className="filter-sidebar-content">
         <div className="filter-header">
-          <h2 className="filter-title">Filters & Sort</h2>
+          <h2 className="filter-title" id="filters-heading">Filters & Sort</h2>
           {hasActiveFilters && (
             <button
               onClick={handleClearFilters}
               className="clear-filters-btn"
               title="Clear all filters"
+              aria-label="Clear all active filters"
             >
-              <X className="icon" />
+              <X className="icon" aria-hidden="true" />
               Clear
             </button>
           )}
@@ -146,9 +147,10 @@ export function FilterSidebar() {
           <button
             onClick={() => dispatch(toggleSortDirection())}
             className="sort-direction-btn"
+            aria-label={`Change sort direction to ${sortDirection === 'asc' ? 'descending' : 'ascending'}`}
             title={`Sort ${sortDirection === 'asc' ? 'Descending' : 'Ascending'}`}
           >
-            <ArrowUpDown className="icon" />
+            <ArrowUpDown className="icon" aria-hidden="true" />
             {sortDirection === 'asc' ? 'Ascending' : 'Descending'}
           </button>
         </div>
@@ -160,7 +162,7 @@ export function FilterSidebar() {
             {availableLanguages.length === 0 ? (
               <p className="no-languages">No languages available</p>
             ) : (
-              <div className="language-checkboxes">
+              <div className="language-checkboxes" role="group" aria-label="Filter by languages">
                 {availableLanguages.map((lang) => (
                   <label key={lang} className="language-checkbox-label">
                     <input
@@ -168,8 +170,9 @@ export function FilterSidebar() {
                       checked={selectedLanguages.includes(lang)}
                       onChange={() => dispatch(toggleLanguage(lang))}
                       className="language-checkbox"
+                      aria-label={`Filter by ${getLanguageName(lang)}`}
                     />
-                    <span className="language-name">{getLanguageName(lang)}</span>
+                    <span className="language-name" aria-hidden="true">{getLanguageName(lang)}</span>
                   </label>
                 ))}
               </div>

@@ -18,12 +18,16 @@ function BookDetails() {
 
   return (
     <div className="book-details-container">
-      <button onClick={() => navigate(-1)} className="back-button">
+      <button 
+        onClick={() => navigate(-1)} 
+        className="back-button"
+        aria-label="Go back to book list"
+      >
         ← Back to List
       </button>
       
       <div className="book-details-content">
-        <div className="book-details-header">
+        <article className="book-details-header" aria-labelledby="book-title">
           <div className="book-cover-large">
             <BookCover 
               coverImageId={book.coverId} 
@@ -34,7 +38,7 @@ function BookDetails() {
           </div>
 
           <div className="book-details-info">
-            <h1>{book.title}</h1>
+            <h1 id="book-title">{book.title}</h1>
             <p className="author">By J.K. Rowling</p>
             
             {book.created && (
@@ -61,11 +65,11 @@ function BookDetails() {
               </div>
             )}
           </div>
-        </div>
+        </article>
 
-        <div className="notes-section">
+        <section className="notes-section" aria-label="Book notes">
           <Notes bookKey={bookKey} />
-        </div>
+        </section>
       </div>
     </div>
   );
