@@ -3,10 +3,11 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export interface Book {
   key: string;
   title: string;
-  author: string;
+  authors: string[];
   coverImageId?: number;
   firstPublishYear?: number;
   isbn?: string;
+  language?: string[];
 }
 
 export interface BookDetails {
@@ -22,10 +23,11 @@ interface SearchBooksResponse {
   docs: Array<{
     key: string;
     title: string;
-    author_name?: string[];
+    author_name: string[];
     cover_i?: number;
     first_publish_year?: number;
     isbn?: string[];
+    language?: string[];
   }>;
 }
 
@@ -43,16 +45,17 @@ export const openLibraryApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: 'https://openlibrary.org' }),
   endpoints: (builder) => ({
     searchBooks: builder.query<Book[], void>({
-      query: () => '/search.json?title=Harry Potter&author=J.K. Rowling',
+      query: () => '/search.json?title=Harry Potter&author=J.K. Rowling&limit=100000',
       transformResponse: (response: SearchBooksResponse) => {
         // Filter and format the books data
         return response.docs.map(book => ({
           key: book.key,
           title: book.title,
-          author: book.author_name?.[0] || 'J.K. Rowling',
+          authors: book.author_name ?? [],
           coverImageId: book.cover_i,
           firstPublishYear: book.first_publish_year,
           isbn: book.isbn?.[0],
+          language: book.language ?? ['eng'],
         }));
       },
     }),
@@ -82,3 +85,4 @@ export const {
   useGetBookDetailsQuery,
   useGetAuthorDetailsQuery,
 } = openLibraryApi;
+

@@ -2,6 +2,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useGetBookDetailsQuery } from '../../state/apis/openLibraryApi';
 import Notes from '../notes/Notes';
 import './BookDetails.css';
+import { BookCover } from '../ui/BookCover';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
 
 function BookDetails() {
   const { workKey } = useParams<{ workKey: string }>();
@@ -10,7 +12,7 @@ function BookDetails() {
   
   const { data: book, error, isLoading } = useGetBookDetailsQuery(bookKey);
 
-  if (isLoading) return <div className="loading">Loading book details...</div>;
+  if (isLoading) return <LoadingSpinner message="Loading book details..." />;
   if (error) return <div className="error">Error loading book details: {'message' in error ? error.message : 'An error occurred'}</div>;
   if (!book) return <div className="error">Book not found</div>;
 
@@ -23,17 +25,12 @@ function BookDetails() {
       <div className="book-details-content">
         <div className="book-details-header">
           <div className="book-cover-large">
-            {book.coverId ? (
-              <img
-                src={`https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg`}
-                alt={book.title}
-                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/300x450?text=No+Cover';
-                }}
-              />
-            ) : (
-              <div className="no-cover-large">No Cover Available</div>
-            )}
+            <BookCover 
+              coverImageId={book.coverId} 
+              title={book.title}
+              size="large"
+              loading="eager"
+            />
           </div>
 
           <div className="book-details-info">

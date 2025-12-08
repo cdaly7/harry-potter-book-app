@@ -1,6 +1,7 @@
 import {
   selectSearchTerm,
   selectSortBy,
+  selectSortDirection,
   selectBooksByTitle,
   selectFilteredAndSortedBooks,
 } from './selectors';
@@ -11,35 +12,40 @@ describe('BookList Selectors', () => {
       key: '/works/1', 
       title: 'Harry Potter and the Philosopher\'s Stone', 
       firstPublishYear: 1997,
-      author: 'J.K. Rowling'
+      authors: ['J.K. Rowling'],
+      language: ['eng']
     },
     { 
       key: '/works/2', 
       title: 'Harry Potter and the Chamber of Secrets', 
       firstPublishYear: 1998,
-      author: 'J.K. Rowling'
+      authors: ['J.K. Rowling'],
+      language: ['eng', 'spa']
     },
     { 
       key: '/works/3', 
-      title: 'The Hobbit', 
-      firstPublishYear: 1937,
-      author: 'J.R.R. Tolkien'
+      title: 'Harry Potter and the Prisoner of Azkaban', 
+      firstPublishYear: 1999,
+      authors: ['J.K. Rowling'],
+      language: ['eng']
     },
     { 
       key: '/works/4', 
-      title: 'A Game of Thrones', 
-      firstPublishYear: 1996,
-      author: 'George R.R. Martin'
+      title: 'Harry Potter and the Goblet of Fire', 
+      firstPublishYear: 2000,
+      authors: ['J.K. Rowling'],
+      language: ['eng', 'fre']
     },
     { 
       key: '/works/5', 
-      title: 'The Fellowship of the Ring', 
+      title: 'Harry Potter and the Order of the Phoenix', 
       firstPublishYear: null, // Test null publish date
-      author: 'J.R.R. Tolkien'
+      authors: ['J.K. Rowling'],
+      language: ['eng']
     },
   ];
 
-  const createMockState = (searchTerm = '', sortBy = 'title', notes = {}) => ({
+  const createMockState = (searchTerm = '', sortBy = 'title', sortDirection = 'asc', selectedLanguages = [], notes = {}) => ({
     openLibraryApi: {
       queries: {
         'searchBooks(undefined)': {
@@ -56,6 +62,8 @@ describe('BookList Selectors', () => {
     bookList: {
       searchTerm,
       sortBy,
+      sortDirection,
+      selectedLanguages,
     },
     notes: {
       notesByBook: notes,
@@ -91,6 +99,18 @@ describe('BookList Selectors', () => {
     });
   });
 
+  describe('selectSortDirection', () => {
+    it('should return the sort direction from state', () => {
+      const state = createMockState('', 'title', 'desc');
+      expect(selectSortDirection(state)).toBe('desc');
+    });
+
+    it('should return asc by default', () => {
+      const state = createMockState('', 'title', 'asc');
+      expect(selectSortDirection(state)).toBe('asc');
+    });
+  });
+
   describe('selectBooksByTitle', () => {
     it('should return all books when no search term', () => {
       const state = createMockState('');
@@ -99,29 +119,28 @@ describe('BookList Selectors', () => {
     });
 
     it('should filter books by search term in title', () => {
-      const state = createMockState('Harry Potter');
+      const state = createMockState('Chamber');
       const result = selectBooksByTitle(state);
-      expect(result).toHaveLength(2);
-      expect(result[0].title).toContain('Harry Potter');
-      expect(result[1].title).toContain('Harry Potter');
+      expect(result).toHaveLength(1);
+      expect(result[0].title).toContain('Chamber');
     });
 
     it('should filter books by search term in title only', () => {
-      const state = createMockState('Tolkien');
+      const state = createMockState('Narnia');
       const result = selectBooksByTitle(state);
       expect(result).toHaveLength(0); // selectBooksByTitle only filters by title
     });
 
     it('should be case insensitive', () => {
-      const state = createMockState('harry potter');
+      const state = createMockState('goblet');
       const result = selectBooksByTitle(state);
-      expect(result).toHaveLength(2);
+      expect(result).toHaveLength(1);
     });
 
     it('should handle partial matches', () => {
-      const state = createMockState('Potter');
+      const state = createMockState('Phoen');
       const result = selectBooksByTitle(state);
-      expect(result).toHaveLength(2);
+      expect(result).toHaveLength(1);
     });
   });
 
@@ -131,20 +150,19 @@ describe('BookList Selectors', () => {
         const state = createMockState('', 'title');
         const result = selectFilteredAndSortedBooks(state);
         
-        expect(result[0].title).toBe('A Game of Thrones');
-        expect(result[1].title).toBe('Harry Potter and the Chamber of Secrets');
-        expect(result[2].title).toBe('Harry Potter and the Philosopher\'s Stone');
-        expect(result[3].title).toBe('The Fellowship of the Ring');
-        expect(result[4].title).toBe('The Hobbit');
+        expect(result[0].title).toBe('Harry Potter and the Chamber of Secrets');
+        expect(result[1].title).toBe('Harry Potter and the Goblet of Fire');
+        expect(result[2].title).toBe('Harry Potter and the Order of the Phoenix');
+        expect(result[3].title).toBe('Harry Potter and the Philosopher\'s Stone');
+        expect(result[4].title).toBe('Harry Potter and the Prisoner of Azkaban');
       });
 
       it('should sort filtered books by title', () => {
-        const state = createMockState('Harry', 'title');
+        const state = createMockState('Goblet', 'title');
         const result = selectFilteredAndSortedBooks(state);
         
-        expect(result).toHaveLength(2);
-        expect(result[0].title).toBe('Harry Potter and the Chamber of Secrets');
-        expect(result[1].title).toBe('Harry Potter and the Philosopher\'s Stone');
+        expect(result).toHaveLength(1);
+        expect(result[0].title).toBe('Harry Potter and the Goblet of Fire');
       });
     });
 
@@ -153,10 +171,10 @@ describe('BookList Selectors', () => {
         const state = createMockState('', 'publishDate');
         const result = selectFilteredAndSortedBooks(state);
         
-        expect(result[0].firstPublishYear).toBe(1937);
-        expect(result[1].firstPublishYear).toBe(1996);
-        expect(result[2].firstPublishYear).toBe(1997);
-        expect(result[3].firstPublishYear).toBe(1998);
+        expect(result[0].firstPublishYear).toBe(1997);
+        expect(result[1].firstPublishYear).toBe(1998);
+        expect(result[2].firstPublishYear).toBe(1999);
+        expect(result[3].firstPublishYear).toBe(2000);
         expect(result[4].firstPublishYear).toBe(null); // null comes last
       });
 
@@ -180,7 +198,7 @@ describe('BookList Selectors', () => {
             { id: '3', text: 'Note 3', timestamp: Date.now() },
           ],
         };
-        const state = createMockState('', 'notes', notes);
+        const state = createMockState('', 'notes', 'desc', [], notes);
         const result = selectFilteredAndSortedBooks(state);
         
         // /works/1 has 2 notes (most)
@@ -208,33 +226,30 @@ describe('BookList Selectors', () => {
             { id: '3', text: 'Note 3', timestamp: Date.now() },
           ],
         };
-        const state = createMockState('Harry', 'notes', notes);
+        const state = createMockState('Stone', 'notes', 'desc', notes);
         const result = selectFilteredAndSortedBooks(state);
         
-        expect(result).toHaveLength(2);
-        // /works/2 has 2 notes
-        expect(result[0].key).toBe('/works/2');
-        // /works/1 has 1 note
-        expect(result[1].key).toBe('/works/1');
+        expect(result).toHaveLength(1);
+        // Only /works/1 (Philosopher's Stone) matches the search
+        expect(result[0].key).toBe('/works/1');
       });
     });
 
     describe('combined filtering and sorting', () => {
       it('should filter then sort by title', () => {
-        const state = createMockState('Ring', 'title');
+        const state = createMockState('Prisoner', 'title');
         const result = selectFilteredAndSortedBooks(state);
         
         expect(result).toHaveLength(1);
-        expect(result[0].title).toBe('The Fellowship of the Ring');
+        expect(result[0].title).toBe('Harry Potter and the Prisoner of Azkaban');
       });
 
       it('should filter then sort by publish date', () => {
-        const state = createMockState('Harry', 'publishDate');
+        const state = createMockState('Chamber', 'publishDate');
         const result = selectFilteredAndSortedBooks(state);
         
-        expect(result).toHaveLength(2);
-        expect(result[0].firstPublishYear).toBe(1997);
-        expect(result[1].firstPublishYear).toBe(1998);
+        expect(result).toHaveLength(1);
+        expect(result[0].firstPublishYear).toBe(1998);
       });
 
       it('should return empty array when no matches', () => {
@@ -242,6 +257,50 @@ describe('BookList Selectors', () => {
         const result = selectFilteredAndSortedBooks(state);
         
         expect(result).toHaveLength(0);
+      });
+    });
+
+    describe('descending sort direction', () => {
+      it('should sort books by title in descending order', () => {
+        const state = createMockState('', 'title', 'desc');
+        const result = selectFilteredAndSortedBooks(state);
+        
+        expect(result[0].title).toBe('Harry Potter and the Prisoner of Azkaban');
+        expect(result[1].title).toBe('Harry Potter and the Philosopher\'s Stone');
+        expect(result[2].title).toBe('Harry Potter and the Order of the Phoenix');
+        expect(result[3].title).toBe('Harry Potter and the Goblet of Fire');
+        expect(result[4].title).toBe('Harry Potter and the Chamber of Secrets');
+      });
+
+      it('should sort books by publish date in descending order', () => {
+        const state = createMockState('', 'publishDate', 'desc');
+        const result = selectFilteredAndSortedBooks(state);
+        
+        expect(result[0].firstPublishYear).toBe(null); // null comes first in desc
+        expect(result[1].firstPublishYear).toBe(2000);
+        expect(result[2].firstPublishYear).toBe(1999);
+        expect(result[3].firstPublishYear).toBe(1998);
+        expect(result[4].firstPublishYear).toBe(1997);
+      });
+
+      it('should sort books by notes in descending order', () => {
+        const notes = {
+          '/works/1': [
+            { id: '1', text: 'Note 1', timestamp: Date.now() },
+            { id: '2', text: 'Note 2', timestamp: Date.now() },
+          ],
+          '/works/3': [
+            { id: '3', text: 'Note 3', timestamp: Date.now() },
+          ],
+        };
+        const state = createMockState('', 'notes', 'desc', [], notes);
+        const result = selectFilteredAndSortedBooks(state);
+        
+        // With desc, books with more notes come first
+        // /works/1 has 2 notes (most), /works/3 has 1 note, others have 0
+        expect(result[0].key).toBe('/works/1');
+        expect(result[1].key).toBe('/works/3');
+        // Others have 0 notes
       });
     });
   });

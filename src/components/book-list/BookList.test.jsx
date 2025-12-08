@@ -30,6 +30,9 @@ jest.mock('../../state/books/selectors', () => ({
 jest.mock('./selectors', () => ({
   selectSearchTerm: jest.fn(),
   selectSortBy: jest.fn(),
+  selectSortDirection: jest.fn(),
+  selectSelectedLanguages: jest.fn(),
+  selectAvailableLanguages: jest.fn(),
   selectFilteredAndSortedBooks: jest.fn(),
 }));
 
@@ -45,22 +48,24 @@ const mockBooks = [
   {
     key: '/works/OL82563W',
     title: "Harry Potter and the Philosopher's Stone",
-    author: 'J.K. Rowling',
+    authors: ['J.K. Rowling'],
     coverImageId: 8739161,
     firstPublishYear: 1997,
+    language: ['eng'],
   },
   {
     key: '/works/OL82564W',
     title: 'Harry Potter and the Chamber of Secrets',
-    author: 'J.K. Rowling',
+    authors: ['J.K. Rowling'],
     coverImageId: 8739162,
     firstPublishYear: 1998,
+    language: ['eng'],
   },
 ];
 
 const { useSearchBooksQuery } = require('../../state/apis/openLibraryApi');
 const { selectAllBooks } = require('../../state/books/selectors');
-const { selectSearchTerm, selectSortBy, selectFilteredAndSortedBooks } = require('./selectors');
+const { selectSearchTerm, selectSortBy, selectSortDirection, selectSelectedLanguages, selectAvailableLanguages, selectFilteredAndSortedBooks } = require('./selectors');
 const { setSearchTerm, clearSearchTerm, setSortBy } = require('./slice');
 
 // Helper function to render with providers
@@ -95,6 +100,9 @@ describe('BookList', () => {
     selectAllBooks.mockReturnValue(mockBooks);
     selectSearchTerm.mockReturnValue('');
     selectSortBy.mockReturnValue('title');
+    selectSortDirection.mockReturnValue('asc');
+    selectSelectedLanguages.mockReturnValue([]);
+    selectAvailableLanguages.mockReturnValue(['eng']);
     selectFilteredAndSortedBooks.mockReturnValue(mockBooks);
   });
 
@@ -139,7 +147,7 @@ describe('BookList', () => {
       const bookCover = screen.getByAltText("Harry Potter and the Philosopher's Stone");
       expect(bookCover).toHaveAttribute(
         'src',
-        'https://covers.openlibrary.org/b/id/8739161-L.jpg'
+        'https://covers.openlibrary.org/b/id/8739161-M.jpg'
       );
     });
   });
@@ -248,7 +256,7 @@ describe('BookList', () => {
     });
   });
 
-  it('should render search input', () => {
+  it('should render search input in sidebar', () => {
     useSearchBooksQuery.mockReturnValue({
       data: mockBooks,
       error: null,
@@ -257,7 +265,7 @@ describe('BookList', () => {
 
     renderWithProviders(<BookList />);
 
-    const searchInput = screen.getByPlaceholderText(/search books by title/i);
+    const searchInput = screen.getByPlaceholderText(/search by title/i);
     expect(searchInput).toBeInTheDocument();
   });
 
@@ -269,7 +277,7 @@ describe('BookList', () => {
     });
 
     renderWithProviders(<BookList />);
-    const searchInput = screen.getByPlaceholderText(/search books by title/i);
+    const searchInput = screen.getByPlaceholderText(/search by title/i);
 
     // Initially should show all books
     expect(screen.getByText("Harry Potter and the Philosopher's Stone")).toBeInTheDocument();
@@ -357,7 +365,7 @@ describe('BookList', () => {
   });
 
   describe('Sort functionality', () => {
-    it('should render sort dropdown', () => {
+    it('should render sort dropdown in sidebar', () => {
       useSearchBooksQuery.mockReturnValue({
         data: mockBooks,
         error: null,
@@ -366,8 +374,7 @@ describe('BookList', () => {
 
       renderWithProviders(<BookList />);
 
-      expect(screen.getByLabelText(/sort by:/i)).toBeInTheDocument();
-      const sortSelect = screen.getByRole('combobox');
+      const sortSelect = screen.getByLabelText(/sort books/i);
       expect(sortSelect).toBeInTheDocument();
     });
 
@@ -380,12 +387,12 @@ describe('BookList', () => {
 
       renderWithProviders(<BookList />);
 
-      const sortSelect = screen.getByRole('combobox');
+      const sortSelect = screen.getByLabelText(/sort books/i);
       const options = sortSelect.querySelectorAll('option');
       
       expect(options).toHaveLength(3);
       expect(options[0]).toHaveValue('title');
-      expect(options[0]).toHaveTextContent('Title');
+      expect(options[0]).toHaveTextContent(/Title/);
       expect(options[1]).toHaveValue('publishDate');
       expect(options[1]).toHaveTextContent('Publish Date');
       expect(options[2]).toHaveValue('notes');
@@ -403,7 +410,7 @@ describe('BookList', () => {
 
       renderWithProviders(<BookList />);
 
-      const sortSelect = screen.getByRole('combobox');
+      const sortSelect = screen.getByLabelText(/sort books/i);
       expect(sortSelect).toHaveValue('publishDate');
     });
 
@@ -416,7 +423,7 @@ describe('BookList', () => {
 
       renderWithProviders(<BookList />);
 
-      const sortSelect = screen.getByRole('combobox');
+      const sortSelect = screen.getByLabelText(/sort books/i);
       await userEvent.selectOptions(sortSelect, 'notes');
 
       await waitFor(() => {

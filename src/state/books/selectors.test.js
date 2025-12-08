@@ -1,5 +1,4 @@
 import {
-  selectSearchTerm,
   selectBookByKey,
   selectBooksSortedByTitle,
   selectBooksSortedByYear,
@@ -14,24 +13,27 @@ describe('Book Selectors', () => {
     {
       key: '/works/OL82563W',
       title: "Harry Potter and the Philosopher's Stone",
-      author: 'J.K. Rowling',
+      authors: ['J.K. Rowling'],
       coverImageId: 8739161,
       firstPublishYear: 1997,
       isbn: '0439708184',
+      language: ['eng'],
     },
     {
       key: '/works/OL82564W',
       title: 'Harry Potter and the Chamber of Secrets',
-      author: 'J.K. Rowling',
+      authors: ['J.K. Rowling'],
       coverImageId: 8739162,
       firstPublishYear: 1998,
       isbn: '0439064872',
+      language: ['eng'],
     },
     {
       key: '/works/OL82565W',
       title: 'Harry Potter and the Prisoner of Azkaban',
-      author: 'J.K. Rowling',
+      authors: ['J.K. Rowling'],
       firstPublishYear: 1999,
+      language: ['eng'],
     },
   ];
 
@@ -53,29 +55,6 @@ describe('Book Selectors', () => {
     bookList: {
       searchTerm,
     },
-  });
-
-  describe('selectSearchTerm', () => {
-    it('should return the search term from state', () => {
-      const state = createMockState(mockBooks, 'Harry');
-      const result = selectSearchTerm(state);
-      expect(result).toBe('Harry');
-    });
-
-    it('should return empty string when search term is empty', () => {
-      const state = createMockState(mockBooks, '');
-      const result = selectSearchTerm(state);
-      expect(result).toBe('');
-    });
-
-    it('should return empty string when bookList state is missing', () => {
-      const state = {
-        openLibraryApi: {},
-        notes: {},
-      };
-      const result = selectSearchTerm(state);
-      expect(result).toBe('');
-    });
   });
 
   describe('selectBookByKey', () => {

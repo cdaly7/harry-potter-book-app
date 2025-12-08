@@ -20,6 +20,37 @@ export const selectSortBy = createSelector(
 );
 
 /**
+ * Selector to get the sort direction from bookList state
+ */
+export const selectSortDirection = createSelector(
+    (state: RootState) => state.bookList,
+    (bookList: BookListState) => bookList.sortDirection || 'asc'
+);
+
+/**
+ * Selector to get the selected languages from bookList state
+ */
+export const selectSelectedLanguages = createSelector(
+    (state: RootState) => state.bookList,
+    (bookList: BookListState) => bookList.selectedLanguages || []
+);
+
+/**
+ * Selector to get unique languages from all books
+ */
+export const selectAvailableLanguages = createSelector(
+    [selectAllBooks],
+    (books) => {
+        if (!books) return [];
+        const languageSet = new Set<string>();
+        books.forEach(book => {
+            book.language?.forEach(lang => languageSet.add(lang));
+        });
+        return Array.from(languageSet).sort();
+    }
+);
+
+/**
  * Memoized selector to search books by title
  */
 export const selectBooksByTitle = createSelector(
@@ -48,9 +79,11 @@ export const selectFilteredAndSortedBooks = createSelector(
         (state: RootState) => state,
         selectAllBooks,
         selectSearchTerm,
-        selectSortBy
+        selectSortBy,
+        selectSortDirection,
+        selectSelectedLanguages
     ],
-    (state, books, searchTerm, sortBy) => {
+    (state, books, searchTerm, sortBy, sortDirection, selectedLanguages) => {
         if (!books) return [];
         
         // Filter by search term
@@ -62,19 +95,30 @@ export const selectFilteredAndSortedBooks = createSelector(
             );
         }
         
+        // Filter by selected languages (if any selected)
+        if (selectedLanguages.length > 0) {
+            filteredBooks = filteredBooks.filter(book => 
+                book.language?.some(lang => selectedLanguages.includes(lang))
+            );
+        }
+        
         // Sort based on sortBy option
         const sortedBooks = [...filteredBooks];
         
         switch (sortBy) {
             case 'title':
-                sortedBooks.sort((a, b) => a.title.localeCompare(b.title));
+                sortedBooks.sort((a, b) => {
+                    const comparison = a.title.localeCompare(b.title);
+                    return sortDirection === 'asc' ? comparison : -comparison;
+                });
                 break;
             
             case 'publishDate':
                 sortedBooks.sort((a, b) => {
                     const yearA = a.firstPublishYear ?? 9999;
                     const yearB = b.firstPublishYear ?? 9999;
-                    return yearA - yearB;
+                    const comparison = yearA - yearB;
+                    return sortDirection === 'asc' ? comparison : -comparison;
                 });
                 break;
             
@@ -82,13 +126,17 @@ export const selectFilteredAndSortedBooks = createSelector(
                 sortedBooks.sort((a, b) => {
                     const notesA = getNoteCount(state, a.key);
                     const notesB = getNoteCount(state, b.key);
-                    return notesB - notesA; // Descending order (most notes first)
+                    const comparison = notesA - notesB;
+                    return sortDirection === 'asc' ? comparison : -comparison;
                 });
                 break;
             
             default:
                 // Default to title sort
-                sortedBooks.sort((a, b) => a.title.localeCompare(b.title));
+                sortedBooks.sort((a, b) => {
+                    const comparison = a.title.localeCompare(b.title);
+                    return sortDirection === 'asc' ? comparison : -comparison;
+                });
         }
         
         return sortedBooks;

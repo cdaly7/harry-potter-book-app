@@ -108,7 +108,7 @@ describe('BookDetails', () => {
       const image = screen.getByRole('img');
       expect(image).toHaveAttribute(
         'src',
-        'https://covers.openlibrary.org/b/id/8739161-L.jpg'
+        'https://covers.openlibrary.org/b/id/8739161-M.jpg'
       );
     });
   });
