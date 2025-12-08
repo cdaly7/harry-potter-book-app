@@ -7,68 +7,67 @@ import './FilterSidebar.css';
 
 // Language code to name mapping
 const LANGUAGE_NAMES: Record<string, string> = {
-  'eng': 'English',
-  'spa': 'Spanish',
-  'fre': 'French',
-  'ger': 'German',
-  'ita': 'Italian',
-  'por': 'Portuguese',
-  'dut': 'Dutch',
-  'rus': 'Russian',
-  'jpn': 'Japanese',
-  'chi': 'Chinese',
-  'ara': 'Arabic',
-  'kor': 'Korean',
-  'pol': 'Polish',
-  'swe': 'Swedish',
-  'nor': 'Norwegian',
-  'dan': 'Danish',
-  'fin': 'Finnish',
-  'gre': 'Greek',
-  'tur': 'Turkish',
-  'heb': 'Hebrew',
-  'ukr': 'Ukrainian',
-  'hun': 'Hungarian',
-  'cze': 'Czech',
-  'ron': 'Romanian',
-  'vie': 'Vietnamese',
-  'ice': 'Icelandic',
-  'tib': 'Tibetan',
-  'est': 'Estonian',
-  'lav': 'Latvian',
-  'lit': 'Lithuanian',
-  'rum': 'Macedonian',
-  'bul': 'Bulgarian',
-  'yid': 'Yiddish',
-  'wel': 'Welsh',
-  'urd': 'Urdu',
-  'und': 'Undetermined',
-  'tha': 'Thai',
-  'per': 'Persian',
-  'nob': 'Norwegian',
-  'mul': 'Multiple',
-  'mar': 'Marathi',
-  'ltz': 'Luxembourgish',
-  'lat': 'Latin',
-  'kal': 'Kalaallisut',
-  'ind': 'Indonesian',
-  'hrv': 'Croatian',
-  'hin': 'Hindi',
-  'glg': 'Galician',
-  'grc': 'Ancient Greek',
   'afr': 'Afrikaans',
   'alb': 'Albanian',
+  'ara': 'Arabic',
   'arm': 'Armenian',
   'baq': 'Basque',
-  'bqa': 'Azerbaijani',
   'ben': 'Bengali',
   'bos': 'Bosnian',
+  'bqa': 'Azerbaijani',
+  'bul': 'Bulgarian',
   'cat': 'Catalan',
+  'chi': 'Chinese',
+  'cze': 'Czech',
+  'dan': 'Danish',
+  'dut': 'Dutch',
+  'eng': 'English',
+  'est': 'Estonian',
+  'fin': 'Finnish',
+  'fre': 'French',
   'gem': 'Germanic',
   'geo': 'Georgian',
+  'ger': 'German',
   'gla': 'Gaelic',
-  'gle': 'Irish'
-
+  'gle': 'Irish',
+  'glg': 'Galician',
+  'grc': 'Ancient Greek',
+  'gre': 'Greek',
+  'heb': 'Hebrew',
+  'hin': 'Hindi',
+  'hrv': 'Croatian',
+  'hun': 'Hungarian',
+  'ice': 'Icelandic',
+  'ind': 'Indonesian',
+  'ita': 'Italian',
+  'jpn': 'Japanese',
+  'kal': 'Kalaallisut',
+  'kor': 'Korean',
+  'lat': 'Latin',
+  'lav': 'Latvian',
+  'lit': 'Lithuanian',
+  'ltz': 'Luxembourgish',
+  'mar': 'Marathi',
+  'mul': 'Multiple',
+  'nob': 'Norwegian',
+  'nor': 'Norwegian',
+  'per': 'Persian',
+  'pol': 'Polish',
+  'por': 'Portuguese',
+  'ron': 'Romanian',
+  'rum': 'Macedonian',
+  'rus': 'Russian',
+  'spa': 'Spanish',
+  'swe': 'Swedish',
+  'tha': 'Thai',
+  'tib': 'Tibetan',
+  'tur': 'Turkish',
+  'ukr': 'Ukrainian',
+  'und': 'Undetermined',
+  'urd': 'Urdu',
+  'vie': 'Vietnamese',
+  'wel': 'Welsh',
+  'yid': 'Yiddish'
 };
 
 export function FilterSidebar() {
@@ -120,7 +119,7 @@ export function FilterSidebar() {
               aria-label="Search books"
             />
             {searchTerm && (
-              <button 
+              <button
                 className="search-clear-btn"
                 onClick={() => dispatch(clearSearchTerm())}
                 aria-label="Clear search"
@@ -129,6 +128,29 @@ export function FilterSidebar() {
               </button>
             )}
           </div>
+        </div>
+
+        {/* Sort Section */}
+        <div className="filter-section">
+          <h3 className="section-title">Sort By</h3>
+          <select
+            value={sortBy}
+            onChange={(e) => dispatch(setSortBy(e.target.value as SortOption))}
+            className="sidebar-select"
+            aria-label="Sort books"
+          >
+            <option value="title">Title</option>
+            <option value="publishDate">Publish Date</option>
+          </select>
+
+          <button
+            onClick={() => dispatch(toggleSortDirection())}
+            className="sort-direction-btn"
+            title={`Sort ${sortDirection === 'asc' ? 'Descending' : 'Ascending'}`}
+          >
+            <ArrowUpDown className="icon" />
+            {sortDirection === 'asc' ? 'Ascending' : 'Descending'}
+          </button>
         </div>
 
         {/* Language Filter Section */}
@@ -158,30 +180,6 @@ export function FilterSidebar() {
               </p>
             )}
           </div>
-        </div>
-
-        {/* Sort Section */}
-        <div className="filter-section">
-          <h3 className="section-title">Sort By</h3>
-          <select
-            value={sortBy}
-            onChange={(e) => dispatch(setSortBy(e.target.value as SortOption))}
-            className="sidebar-select"
-            aria-label="Sort books"
-          >
-            <option value="title">Title</option>
-            <option value="publishDate">Publish Date</option>
-            <option value="notes">Number of Notes</option>
-          </select>
-          
-          <button
-            onClick={() => dispatch(toggleSortDirection())}
-            className="sort-direction-btn"
-            title={`Sort ${sortDirection === 'asc' ? 'Descending' : 'Ascending'}`}
-          >
-            <ArrowUpDown className="icon" />
-            {sortDirection === 'asc' ? 'Ascending' : 'Descending'}
-          </button>
         </div>
 
         {/* Info Section */}

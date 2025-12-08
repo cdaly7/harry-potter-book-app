@@ -2,7 +2,6 @@ import {
   selectSearchTerm,
   selectSortBy,
   selectSortDirection,
-  selectBooksByTitle,
   selectFilteredAndSortedBooks,
 } from './selectors';
 
@@ -108,39 +107,6 @@ describe('BookList Selectors', () => {
     it('should return asc by default', () => {
       const state = createMockState('', 'title', 'asc');
       expect(selectSortDirection(state)).toBe('asc');
-    });
-  });
-
-  describe('selectBooksByTitle', () => {
-    it('should return all books when no search term', () => {
-      const state = createMockState('');
-      const result = selectBooksByTitle(state);
-      expect(result).toHaveLength(5);
-    });
-
-    it('should filter books by search term in title', () => {
-      const state = createMockState('Chamber');
-      const result = selectBooksByTitle(state);
-      expect(result).toHaveLength(1);
-      expect(result[0].title).toContain('Chamber');
-    });
-
-    it('should filter books by search term in title only', () => {
-      const state = createMockState('Narnia');
-      const result = selectBooksByTitle(state);
-      expect(result).toHaveLength(0); // selectBooksByTitle only filters by title
-    });
-
-    it('should be case insensitive', () => {
-      const state = createMockState('goblet');
-      const result = selectBooksByTitle(state);
-      expect(result).toHaveLength(1);
-    });
-
-    it('should handle partial matches', () => {
-      const state = createMockState('Phoen');
-      const result = selectBooksByTitle(state);
-      expect(result).toHaveLength(1);
     });
   });
 

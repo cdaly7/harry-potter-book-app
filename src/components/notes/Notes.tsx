@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addNote, deleteNote } from '../../state/notes/slice';
-import type { RootState, AppDispatch } from '../../store';
+import { selectNotesByBookKey } from '../../state/notes/selectors';
+import type { AppDispatch } from '../../store';
 import './Notes.css';
 
 interface NotesProps {
@@ -11,7 +12,8 @@ interface NotesProps {
 function Notes({ bookKey }: NotesProps) {
   const [noteText, setNoteText] = useState('');
   const dispatch = useDispatch<AppDispatch>();
-  const notes = useSelector((state: RootState) => state.notes.notesByBook[bookKey] || []);
+  const selectNotes = useMemo(() => selectNotesByBookKey(bookKey), [bookKey]);
+  const notes = useSelector(selectNotes);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

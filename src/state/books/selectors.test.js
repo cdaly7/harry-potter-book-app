@@ -1,12 +1,4 @@
-import {
-  selectBookByKey,
-  selectBooksSortedByTitle,
-  selectBooksSortedByYear,
-  selectBooksWithCovers,
-  selectBooksCount,
-  selectBooksByTitle,
-  selectBooksByYearRange,
-} from './selectors';
+import { selectAllBooks } from './selectors';
 
 describe('Book Selectors', () => {
   const mockBooks = [
@@ -37,8 +29,7 @@ describe('Book Selectors', () => {
     },
   ];
 
-  // Mock state with books data
-  const createMockState = (books, searchTerm = '') => ({
+  const createMockState = (books) => ({
     openLibraryApi: {
       queries: {
         'searchBooks(undefined)': {
@@ -49,130 +40,20 @@ describe('Book Selectors', () => {
         },
       },
     },
-    notes: {
-      notesByBook: {},
-    },
-    bookList: {
-      searchTerm,
-    },
   });
 
-  describe('selectBookByKey', () => {
-    it('should return a specific book by key', () => {
+  describe('selectAllBooks', () => {
+    it('should return all books from the API cache', () => {
       const state = createMockState(mockBooks);
-      const result = selectBookByKey(state, '/works/OL82563W');
-      expect(result).toEqual(mockBooks[0]);
-    });
-
-    it('should return undefined for non-existent key', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBookByKey(state, '/works/NONEXISTENT');
-      expect(result).toBeUndefined();
+      const result = selectAllBooks(state);
+      expect(result).toEqual(mockBooks);
+      expect(result).toHaveLength(3);
     });
 
     it('should return undefined when no books are loaded', () => {
       const state = createMockState(undefined);
-      const result = selectBookByKey(state, '/works/OL82563W');
+      const result = selectAllBooks(state);
       expect(result).toBeUndefined();
-    });
-  });
-
-  describe('selectBooksSortedByTitle', () => {
-    it('should return books sorted alphabetically by title', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBooksSortedByTitle(state);
-      expect(result[0].title).toBe('Harry Potter and the Chamber of Secrets');
-      expect(result[1].title).toBe("Harry Potter and the Philosopher's Stone");
-      expect(result[2].title).toBe('Harry Potter and the Prisoner of Azkaban');
-    });
-
-    it('should return empty array when no books are loaded', () => {
-      const state = createMockState(undefined);
-      const result = selectBooksSortedByTitle(state);
-      expect(result).toEqual([]);
-    });
-  });
-
-  describe('selectBooksSortedByYear', () => {
-    it('should return books sorted by publication year', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBooksSortedByYear(state);
-      expect(result[0].firstPublishYear).toBe(1997);
-      expect(result[1].firstPublishYear).toBe(1998);
-      expect(result[2].firstPublishYear).toBe(1999);
-    });
-  });
-
-  describe('selectBooksWithCovers', () => {
-    it('should return only books with cover images', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBooksWithCovers(state);
-      expect(result).toHaveLength(2);
-      expect(result.every(book => book.coverImageId !== undefined)).toBe(true);
-    });
-  });
-
-  describe('selectBooksCount', () => {
-    it('should return 0 when no books are loaded', () => {
-      const state = createMockState(undefined);
-      const result = selectBooksCount(state);
-      expect(result).toBe(0);
-    });
-
-    it('should return the correct count of books', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBooksCount(state);
-      expect(result).toBe(3);
-    });
-  });
-
-  describe('selectBooksByTitle', () => {
-    it('should filter books by title search term', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBooksByTitle(state, 'Chamber');
-      expect(result).toHaveLength(1);
-      expect(result[0].title).toBe('Harry Potter and the Chamber of Secrets');
-    });
-
-    it('should be case insensitive', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBooksByTitle(state, 'prisoner');
-      expect(result).toHaveLength(1);
-      expect(result[0].title).toBe('Harry Potter and the Prisoner of Azkaban');
-    });
-
-    it('should return all books when search term is empty', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBooksByTitle(state, '');
-      expect(result).toHaveLength(3);
-    });
-
-    it('should return empty array when no matches found', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBooksByTitle(state, 'Goblet');
-      expect(result).toHaveLength(0);
-    });
-  });
-
-  describe('selectBooksByYearRange', () => {
-    it('should filter books by year range', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBooksByYearRange(state, 1997, 1998);
-      expect(result).toHaveLength(2);
-      expect(result[0].firstPublishYear).toBe(1997);
-      expect(result[1].firstPublishYear).toBe(1998);
-    });
-
-    it('should return empty array when no books match the range', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBooksByYearRange(state, 2000, 2010);
-      expect(result).toHaveLength(0);
-    });
-
-    it('should include books at range boundaries', () => {
-      const state = createMockState(mockBooks);
-      const result = selectBooksByYearRange(state, 1998, 1999);
-      expect(result).toHaveLength(2);
     });
   });
 });

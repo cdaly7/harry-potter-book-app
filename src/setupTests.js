@@ -21,3 +21,33 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(),
   })),
 });
+
+// Mock IntersectionObserver for lazy loading tests
+global.IntersectionObserver = class IntersectionObserver {
+  constructor(callback) {
+    this.callback = callback;
+  }
+
+  observe(target) {
+    // Immediately trigger the callback as if element is visible
+    this.callback([
+      {
+        isIntersecting: true,
+        target,
+        intersectionRatio: 1,
+        boundingClientRect: target.getBoundingClientRect(),
+        intersectionRect: target.getBoundingClientRect(),
+        rootBounds: null,
+        time: Date.now(),
+      },
+    ]);
+  }
+
+  unobserve() {
+    // no-op
+  }
+
+  disconnect() {
+    // no-op
+  }
+};

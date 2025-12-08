@@ -44,8 +44,6 @@ function BookList() {
     }
   }, [filteredBooks]);
 
-  if (error) return <div className="error">Error loading books: {'message' in error ? error.message : 'An error occurred'}</div>;
-
   const booksToDisplay = filteredBooks;
   const resultCount = booksToDisplay?.length ?? 0;
 
@@ -56,6 +54,8 @@ function BookList() {
       <main className="main-content">
         <img src={harryBanner} alt="Harry Potter Books by J.K. Rowling" className="banner-image" />
         { 
+          error ? 
+          <div className="error">Error loading books: {'message' in error ? error.message : 'An error occurred'}</div> :
           isLoading ? 
           <LoadingSpinner message="Loading Harry Potter books..." /> :
           <div>

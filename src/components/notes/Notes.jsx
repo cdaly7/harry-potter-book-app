@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addNote, deleteNote } from '../../state/notes/slice';
+import { selectNotesByBookKey } from '../../state/notes/selectors';
 import './Notes.css';
 
 function Notes({ bookKey }) {
   const [noteText, setNoteText] = useState('');
   const dispatch = useDispatch();
-
-  const notes = useSelector((state) => state.notes.notesByBook[bookKey] || []);
+  const selectNotes = useMemo(() => selectNotesByBookKey(bookKey), [bookKey]);
+  const notes = useSelector(selectNotes);
 
   const handleSubmit = (e) => {
     e.preventDefault();

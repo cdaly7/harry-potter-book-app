@@ -51,20 +51,6 @@ export const selectAvailableLanguages = createSelector(
 );
 
 /**
- * Memoized selector to search books by title
- */
-export const selectBooksByTitle = createSelector(
-    [selectAllBooks, selectSearchTerm],
-    (books, searchTerm) => {
-        if (!books || !searchTerm) return books ?? [];
-        const lowerSearchTerm = searchTerm.toLowerCase();
-        return books.filter(book =>
-            book.title.toLowerCase().includes(lowerSearchTerm)
-        );
-    }
-);
-
-/**
  * Helper function to get note count for a book
  */
 const getNoteCount = (state: RootState, bookKey: string): number => {
