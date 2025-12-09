@@ -86,7 +86,9 @@ const renderWithProviders = (
 ) => {
   const Wrapper = ({ children }) => (
     <Provider store={store}>
-      <BrowserRouter>{children}</BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        {children}
+      </BrowserRouter>
     </Provider>
   );
 
@@ -149,21 +151,6 @@ describe('BookList', () => {
         'src',
         'https://covers.openlibrary.org/b/id/8739161-M.jpg'
       );
-    });
-  });
-
-  it('should render author names', async () => {
-    useSearchBooksQuery.mockReturnValue({
-      data: mockBooks,
-      error: null,
-      isLoading: false,
-    });
-
-    renderWithProviders(<BookList />);
-
-    await waitFor(() => {
-      const authorElements = screen.getAllByText('J.K. Rowling');
-      expect(authorElements.length).toBeGreaterThan(0);
     });
   });
 

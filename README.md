@@ -5,38 +5,49 @@ A React application built with Vite, Redux Toolkit Query (RTK Query), and React 
 ## Features
 
 ### 1. Book List View
-- Displays all Harry Potter books by J.K. Rowling
-- Shows cover art and book titles
-- Fetches data from OpenLibrary API
-- Grid layout with hover effects
+- Displays all Harry Potter books by J.K. Rowling (filtered at API level)
+- Shows cover art, book titles, and publication year
+- Responsive grid layout with hover effects
+- Lazy loading images with Intersection Observer for performance
+- Image preloading for first 6 visible books
 
-### 2. Book Details View
+### 2. Advanced Filtering & Sorting
+- **Search**: Debounced search by title (300ms delay)
+- **Sort Options**: 
+  - Title (A-Z)
+  - Publish Date
+  - Edition Count
+- **Sort Direction**: Ascending/Descending toggle
+- **Language Filter**: Multi-select language filter with checkboxes
+- Live results count display
+
+### 3. Book Details View
 - Detailed information about each book including:
-  - Cover art
+  - Large cover art with optimized loading
   - Title
-  - Author
   - Published date
   - Description
-  - Subjects/tags
+  - Subject tags (limited to 10)
 - Navigate back to the book list
 
-### 3. Notes Feature
+### 4. Notes Feature
 - Create notes for each book
 - Notes include text content and timestamp
-- Notes are stored in-memory during the app session
+- Notes are stored in Redux (in-memory during session)
 - Delete notes functionality
 - Notes persist while navigating between books
 
 ## Tech Stack
 
-- **React 18** - UI library
+- **React 18** - UI library with hooks
 - **TypeScript** - Type-safe JavaScript
-- **Vite** - Build tool and dev server
-- **Redux Toolkit** - State management
-- **RTK Query** - Data fetching and caching
-- **React Router** - Client-side routing
+- **Vite 6.0** - Fast build tool and dev server
+- **Redux Toolkit** - State management with slices
+- **RTK Query** - Data fetching, caching, and automatic refetching
+- **React Router v6** - Client-side routing with v7 future flags
+- **Lucide React** - Icon library
 - **OpenLibrary API** - Book data source
-- **Jest & React Testing Library** - Testing framework
+- **Jest & React Testing Library** - Testing framework (93 tests)
 
 ## Getting Started
 
@@ -76,29 +87,55 @@ npm run preview
 src/
 ├── components/
 │   ├── book-list/
-│   │   ├── BookList.tsx        # Book list view with grid layout
+│   │   ├── BookList.tsx          # Main book list view with filters
 │   │   ├── BookList.css
-│   │   └── BookList.test.jsx
+│   │   ├── BookList.test.jsx
+│   │   ├── BookCard.tsx          # Individual book card component
+│   │   ├── selectors.ts          # Memoized selectors for filtering/sorting
+│   │   ├── selectors.test.js
+│   │   ├── slice.ts              # Redux slice for UI state
+│   │   └── slice.test.js
 │   ├── book-details/
-│   │   ├── BookDetails.tsx     # Detailed book view
+│   │   ├── BookDetails.tsx       # Detailed book view
 │   │   ├── BookDetails.css
 │   │   └── BookDetails.test.jsx
+│   ├── layouts/
+│   │   ├── FilterSidebar.tsx     # Filter & sort sidebar
+│   │   └── FilterSidebar.css
+│   ├── notes/
+│   │   ├── Notes.tsx             # Notes component
+│   │   ├── Notes.jsx             # Legacy JS version
+│   │   ├── Notes.css
+│   │   └── Notes.test.jsx
+│   └── ui/
+│       ├── BookCover.tsx         # Reusable book cover component
+│       ├── BookCover.css
+│       ├── LoadingSpinner.tsx    # Loading spinner with elder wand
+│       └── LoadingSpinner.css
+├── hooks/
+│   ├── useDebounce.ts            # Debounce hook for search
+│   └── useLazyImage.ts           # Intersection Observer for lazy loading
+├── state/
+│   ├── apis/
+│   │   └── openLibraryApi.ts     # RTK Query API definitions
+│   ├── books/
+│   │   ├── selectors.ts          # Book data selectors
+│   │   └── selectors.test.js
 │   └── notes/
-│       ├── Notes.tsx           # Notes component
-│       ├── Notes.css
-│       └── Notes.test.jsx
-├── features/
-│   └── notes/
-│       ├── notesSlice.ts       # Redux slice for notes management
-│       └── notesSlice.test.js
-├── services/
-│   └── openLibraryApi.ts       # RTK Query API service with types
-├── App.tsx                     # Main app component with routing
+│       ├── slice.ts              # Redux slice for notes
+│       ├── slice.test.js
+│       └── selectors.ts          # Notes selectors
+├── utils/
+│   └── imagePreloader.ts         # Image preloading utility
+├── assets/
+│   ├── harry_banner.webp         # Banner image
+│   └── elder-wand.svg            # Loading spinner icon
+├── App.tsx                       # Main app with routing
 ├── App.css
-├── main.tsx                    # App entry point
+├── main.tsx                      # App entry point
 ├── index.css
-├── store.ts                    # Redux store configuration with types
-└── setupTests.js               # Test environment setup
+├── store.ts                      # Redux store configuration
+└── setupTests.js                 # Test setup with mocks
 ```
 
 ## API Integration
@@ -110,9 +147,21 @@ The app uses the [OpenLibrary API](https://openlibrary.org/developers/api) to fe
 
 ## State Management
 
-- **RTK Query**: Handles API calls, caching, and automatic refetching
-- **Redux Slice**: Manages notes state in-memory
-- Notes are stored per book using the book's work key as identifier
+### Redux Slices
+- **bookList slice**: UI state for filters, search term, sort options, and selected languages
+- **notes slice**: Notes storage keyed by book work key
+- **openLibraryApi**: RTK Query endpoints for book data fetching
+
+### Selectors
+- **Memoized selectors** using `createSelector` for efficient filtering and sorting
+- **Stable references** for empty arrays to prevent unnecessary re-renders
+- **Combined selectors** for complex filtering (search + language + sort)
+
+### Performance Optimizations
+- Debounced search input (300ms delay)
+- Memoized selectors to avoid recalculations
+- Lazy image loading with Intersection Observer
+- Image preloading for first 6 visible books
 
 ## TypeScript Implementation
 
@@ -130,13 +179,36 @@ Key type definitions:
 - `RootState` - Complete Redux store state
 - `AppDispatch` - Typed Redux dispatch
 
-## Notes on Implementation
+## Key Implementation Details
 
-- Notes are stored in Redux state and will be lost on page refresh (as per requirements)
-- The app uses React Router for navigation between list and detail views
-- Cover images are fetched from OpenLibrary's cover API
-- Fallback UI is provided when cover images are unavailable
-- Full TypeScript support with strict type checking enabled
+### Image Optimization
+- **Lazy Loading**: Images load only when near viewport using Intersection Observer
+- **Preloading**: First 6 images preloaded for instant display
+- **Responsive Images**: srcSet for retina displays
+- **CDN Preconnect**: DNS prefetch for OpenLibrary CDN
+- **Size Optimization**: Medium (-M) images by default, large (-L) for 2x displays
+
+### Data Filtering
+- Books filtered at API level to only include J.K. Rowling as author
+- Books without author data excluded
+- Language filtering with multi-select checkboxes
+- Debounced search for better performance
+
+### Accessibility
+- ARIA labels on all interactive elements
+- ARIA live regions for dynamic content updates
+- Semantic HTML (article, section, main)
+- Keyboard navigation support
+- Screen reader friendly
+
+### React Router v7 Ready
+- Future flags enabled: `v7_startTransition` and `v7_relativeSplatPath`
+- No deprecation warnings
+
+### Notes
+- Stored in Redux state (lost on page refresh - in-memory only)
+- Keyed by book work key for persistence across navigation
+- Memoized selector prevents unnecessary re-renders
 
 ## Testing
 
@@ -183,12 +255,3 @@ Tests follow best practices:
 - Test user interactions with userEvent
 - Check accessibility with appropriate queries
 - Validate Redux state changes
-
-## Future Enhancements
-
-- Add persistent storage for notes (localStorage/backend)
-- Implement search and filter functionality
-- Add pagination for large book lists
-- Export notes functionality
-- Dark mode support
-- Increase test coverage for API error scenarios

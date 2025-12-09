@@ -4,14 +4,13 @@ import {
   selectSearchTerm,
   selectFilteredAndSortedBooks,
 } from './selectors';
-import { Link } from 'react-router-dom';
 import './BookList.css';
 import { useSelector } from 'react-redux';
 import harryBanner from '../../assets/harry_banner.webp';
 import { FilterSidebar } from '../layouts/FilterSidebar';
 import { preloadImages, getCoverImageUrl } from '../../utils/imagePreloader';
-import { BookCover } from '../ui/BookCover';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { BookCard } from './BookCard';
 
 function BookList() {
   const searchTerm = useSelector(selectSearchTerm);
@@ -59,7 +58,7 @@ function BookList() {
           isLoading ? 
           <LoadingSpinner message="Loading Harry Potter books..." /> :
           <div>
-          {searchTerm && (
+          {searchTerm && booksToDisplay?.length !== 0 && (
             <div className="results-info" role="status" aria-live="polite">
               <p>
                 Found {resultCount} book{resultCount !== 1 ? 's' : ''} matching "{searchTerm}"
@@ -74,28 +73,7 @@ function BookList() {
               </div>
             ) : (
               booksToDisplay?.map((book, index) => (
-                <Link
-                  to={`/book${book.key}`}
-                  key={book.key}
-                  className="book-card"
-                  aria-label={`View details for ${book.title}${book.firstPublishYear ? `, published in ${book.firstPublishYear}` : ''}`}
-                >
-                  <div className="book-cover">
-                    <BookCover
-                      coverImageId={book.coverImageId}
-                      title={book.title}
-                      size="medium"
-                      loading={index < 6 ? "eager" : "lazy"}
-                    />
-                  </div>
-                  <div className="book-info">
-                    <h3>{book.title}</h3>
-                    <p className="author">{book.authors?.[0] || 'Unknown Author'}</p>
-                    {book.firstPublishYear && (
-                      <p className="year">First Published: {book.firstPublishYear}</p>
-                    )}
-                  </div>
-                </Link>
+                <BookCard key={book.key} book={book} index={index} />
               ))
             )}
           </div>
