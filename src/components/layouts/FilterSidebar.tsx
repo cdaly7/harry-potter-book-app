@@ -1,8 +1,10 @@
 import { X, ArrowUpDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSearchTerm, clearSearchTerm, setSortBy, toggleSortDirection, toggleLanguage, clearLanguageFilter, type SortOption } from '../book-list/slice';
 import { selectSearchTerm, selectSortBy, selectSortDirection, selectSelectedLanguages, selectAvailableLanguages } from '../book-list/selectors';
 import type { AppDispatch } from '../../store';
+import { useDebounce } from '../../hooks/useDebounce';
 import './FilterSidebar.css';
 
 // Language code to name mapping
@@ -78,6 +80,20 @@ export function FilterSidebar() {
   const selectedLanguages = useSelector(selectSelectedLanguages);
   const availableLanguages = useSelector(selectAvailableLanguages);
 
+  // Local state for immediate input feedback
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+  const debouncedSearchTerm = useDebounce(localSearchTerm, 300);
+
+  // Update Redux store with debounced value
+  useEffect(() => {
+    dispatch(setSearchTerm(debouncedSearchTerm));
+  }, [debouncedSearchTerm, dispatch]);
+
+  // Sync local state when Redux state changes (e.g., clear button)
+  useEffect(() => {
+    setLocalSearchTerm(searchTerm);
+  }, [searchTerm]);
+
   const hasActiveFilters = searchTerm.length > 0 || selectedLanguages.length > 0;
 
   const handleClearFilters = () => {
@@ -115,14 +131,17 @@ export function FilterSidebar() {
               type="text"
               className="sidebar-search-input"
               placeholder="Search by title..."
-              value={searchTerm}
-              onChange={(e) => dispatch(setSearchTerm(e.target.value))}
+              value={localSearchTerm}
+              onChange={(e) => setLocalSearchTerm(e.target.value)}
               aria-label="Search books"
             />
-            {searchTerm && (
+            {localSearchTerm && (
               <button
                 className="search-clear-btn"
-                onClick={() => dispatch(clearSearchTerm())}
+                onClick={() => {
+                  setLocalSearchTerm('');
+                  dispatch(clearSearchTerm());
+                }}
                 aria-label="Clear search"
               >
                 ✕
@@ -142,6 +161,7 @@ export function FilterSidebar() {
           >
             <option value="title">Title</option>
             <option value="publishDate">Publish Date</option>
+            <option value="editionCount">Edition Count</option>
           </select>
 
           <button

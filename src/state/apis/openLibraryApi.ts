@@ -8,6 +8,7 @@ export interface Book {
   firstPublishYear?: number;
   isbn?: string;
   language?: string[];
+  editionCount?: number;
 }
 
 export interface BookDetails {
@@ -28,6 +29,7 @@ interface SearchBooksResponse {
     first_publish_year?: number;
     isbn?: string[];
     language?: string[];
+    edition_count?: number;
   }>;
 }
 
@@ -56,6 +58,7 @@ export const openLibraryApi = createApi({
           firstPublishYear: book.first_publish_year,
           isbn: book.isbn?.[0],
           language: book.language ?? ['eng'],
+          editionCount: book.edition_count,
         }));
       },
     }),

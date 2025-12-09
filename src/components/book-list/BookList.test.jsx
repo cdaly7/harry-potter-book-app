@@ -390,11 +390,13 @@ describe('BookList', () => {
       const sortSelect = screen.getByLabelText(/sort books/i);
       const options = sortSelect.querySelectorAll('option');
       
-      expect(options).toHaveLength(2);
+      expect(options).toHaveLength(3);
       expect(options[0]).toHaveValue('title');
       expect(options[0]).toHaveTextContent(/Title/);
       expect(options[1]).toHaveValue('publishDate');
       expect(options[1]).toHaveTextContent('Publish Date');
+      expect(options[2]).toHaveValue('editionCount');
+      expect(options[2]).toHaveTextContent('Edition Count');
     });
 
     it('should display current sort option', () => {

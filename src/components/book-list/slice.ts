@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type SortOption = 'title' | 'publishDate' | 'notes';
+export type SortOption = 'title' | 'publishDate' | 'notes' | 'editionCount';
 export type SortDirection = 'asc' | 'desc';
 
 export interface BookListState {

@@ -117,6 +117,15 @@ export const selectFilteredAndSortedBooks = createSelector(
                 });
                 break;
             
+            case 'editionCount':
+                sortedBooks.sort((a, b) => {
+                    const countA = a.editionCount ?? 0;
+                    const countB = b.editionCount ?? 0;
+                    const comparison = countA - countB;
+                    return sortDirection === 'asc' ? comparison : -comparison;
+                });
+                break;
+            
             default:
                 // Default to title sort
                 sortedBooks.sort((a, b) => {
