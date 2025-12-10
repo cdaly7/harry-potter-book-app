@@ -49,23 +49,16 @@ export const openLibraryApi = createApi({
     searchBooks: builder.query<Book[], void>({
       query: () => '/search.json?title=Harry Potter&author=J.K. Rowling&limit=100000',
       transformResponse: (response: SearchBooksResponse) => {
-        // Filter out books without authors and books not by J.K. Rowling
-        return response.docs
-          .filter(book => 
-            book.author_name && 
-            book.author_name.length > 0 &&
-            book.author_name.includes('J. K. Rowling')
-          )
-          .map(book => ({
-            key: book.key,
-            title: book.title,
-            authors: book.author_name,
-            coverImageId: book.cover_i,
-            firstPublishYear: book.first_publish_year,
-            isbn: book.isbn?.[0],
-            language: book.language ?? ['eng'],
-            editionCount: book.edition_count,
-          }));
+        return response.docs.map(book => ({
+          key: book.key,
+          title: book.title,
+          authors: book.author_name || [],
+          coverImageId: book.cover_i,
+          firstPublishYear: book.first_publish_year,
+          isbn: book.isbn?.[0],
+          language: book.language ?? ['eng'],
+          editionCount: book.edition_count,
+        }));
       },
     }),
     getBookDetails: builder.query<BookDetails, string>({
